@@ -10,3 +10,5 @@ Route::get('/health', function () {
 Route::resource('/quizzes', QuizController::class)->only(['index','store','update']) ;
 
 Route::resource('/quizzes/{quiz}/questions', QuestionsController::class)->only(['index','store']);
+
+Route::post('/quizzes/{quiz}/submit', [QuizController::class, 'submit']);
