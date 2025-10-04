@@ -1,8 +1,12 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\QuestionsController;
 
-
-Route::get('/health-check', function () {
-    return "Pronitttttrahangdale";
+Route::get('/health', function () {
+    return "Pronit rahangdale";
 });
+Route::resource('/quizzes', QuizController::class)->only(['index','store','update']) ;
+
+Route::resource('/quizzes/{quiz}/questions', QuestionsController::class)->only(['index','store']);
