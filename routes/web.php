@@ -7,6 +7,6 @@ Route::get('/', function () {
 });
 
 Route::get('/health-check', function () {
-    return "Pronitttttrahangdale";
+    return "Pronit rahangdale";
 });
 

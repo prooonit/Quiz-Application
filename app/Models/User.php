@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
@@ -20,13 +21,23 @@ class User extends Authenticatable
         'password',
     ];
 
-    // A user can create many quizzes
+    // Required JWT methods
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+    // Relations
     public function quizzes()
     {
         return $this->hasMany(Quiz::class, 'created_by');
     }
 
-    // A user can have many attempts
     public function attempts()
     {
         return $this->hasMany(Attempt::class);
