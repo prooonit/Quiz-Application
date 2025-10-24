@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreQuestionRequest;
 use Illuminate\Http\Request;
 use App\Models\Question;
 use App\Models\Quiz;
@@ -13,23 +14,12 @@ class QuestionsController extends Controller
     /**
      * Store new question(s) for a quiz
      */
-    public function store(Request $request, $quizId)
+    public function store(StoreQuestionRequest $request, $quizId)
     {
         // Validate that the quiz exists
         $quiz = Quiz::findOrFail($quizId);
 
-        $validatedData = $request->validate([
-            'questions' => 'required|array|min:1',
-            'questions.*.type' => 'required|string|in:single,multiple,text',
-            'questions.*.text' => 'required|string',
-            'questions.*.expected_answer' => 'nullable|string',
-            'questions.*.text_answer_limit' => 'nullable|integer',
-            'questions.*.points' => 'required|integer|min:1',
-            'questions.*.options' => 'required_if:questions.*.type,single,multiple|array|min:2',
-            'questions.*.options.*.text' => 'required|string',
-            'questions.*.options.*.is_correct' => 'required_if:questions.*.type,single,multiple|boolean',
-        ]);
-
+        $validatedData = $request->validated();
         DB::beginTransaction();
 
         try {

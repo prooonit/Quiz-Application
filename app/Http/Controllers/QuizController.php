@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreQuizRequest;
+use App\Http\Requests\SubmitQuizRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Quiz;
@@ -17,13 +19,9 @@ class QuizController extends Controller
         return response()->json($quizzes);
     }
 
-    public function store(Request $request)
+    public function store(StoreQuizRequest $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
+        $validatedData = $request->validated();
         // Get the currently logged-in user's ID from the JWT token
         $userId = auth()->id();
 
@@ -42,20 +40,14 @@ class QuizController extends Controller
 
 
 
-    public function submit(Request $request, $quizId)
+    public function submit(SubmitQuizRequest $request, $quizId)
     {
         // Get the authenticated user from JWT
         $userId = auth()->id();
-        $user=User::find($userId);
+        $user = User::find($userId);
         //$user = JWTAuth::parseToken()->authenticate(); // throws exception if token invalid
 
-        $validatedData = $request->validate([
-            'answers' => 'required|array',
-            'answers.*.question_id' => 'required|exists:questions,id',
-            'answers.*.selected_option_ids' => 'nullable|array',
-            'answers.*.text_answer' => 'nullable|string|max:300',
-        ]);
-
+        $validatedData = $request->validated();
         $quiz = Quiz::with('questions.options')->findOrFail($quizId);
 
         $score = 0;
@@ -73,9 +65,10 @@ class QuizController extends Controller
         ]);
 
         foreach ($validatedData['answers'] as $answerData) {
-            $question = $quiz->questions->find($answerData['question_id']);
-            $isCorrect = false;
 
+            $questions = $quiz->questions;
+            $question = $questions->find($answerData['question_id']);
+            $isCorrect = false;
             // Evaluate based on type
             if ($question->type == 'text') {
                 if (isset($question->expected_answer) && isset($answerData['text_answer'])) {
